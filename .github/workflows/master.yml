@@ -1,0 +1,25 @@
+name: Deploy to Custom Server
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up SSH connection
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          echo -e "Host your-server\n\tHostName ${{ secrets.SERVER_IP }}\n\tUser ${{ secrets.SSH_USER }}\n\tPort ${{ secrets.SSH_PORT }}\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+
+      - name: Deploy to server
+        run: |
+          rsync -avz --delete --exclude '.git' --exclude '.github' -e "ssh -p ${{ secrets.SSH_PORT }}" . ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:${{ secrets.INSTALLATION_PATH }}
+    env:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
