@@ -16,7 +16,8 @@ jobs:
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          echo -e "Host your-server\n\tHostName ${{ secrets.SERVER_IP }}\n\tUser ${{ secrets.SSH_USER }}\n\tPort ${{ secrets.SSH_PORT }}\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+          echo -e "Host your-server\n\tHostName ${{ secrets.SERVER_IP }}\n\tUser ${{ secrets.SSH_USER }}\n\tPort ${{ secrets.SSH_PORT }}\n\tStrictHostKeyChecking yes\n\tUserKnownHostsFile ~/.ssh/known_hosts\n" >> ~/.ssh/config
+          ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
 
       - name: Deploy to server
         run: |
